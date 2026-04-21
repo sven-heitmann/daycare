@@ -94,6 +94,13 @@ All written to `container/daycare/data/` (mounted as `/data` inside the containe
 
 ## Configuration
 
+### Clone and create runtime directories
+
+```bash
+git clone <repo-url> daycare && cd daycare
+sudo mkdir -p container/{daycare/data,radicale/data,signal_cli_rest_api/data,secrets,letsencrypt/cert}
+```
+
 ### Radicale setup
 
 Follow the instructions from https://github.com/tomsquest/docker-radicale to get your server up and running.
