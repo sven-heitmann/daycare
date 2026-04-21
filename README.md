@@ -1,6 +1,6 @@
 # Daycare
 
-A personal assistant that syncs your CalDAV calendar and relentlessly escalates reminders via Signal and email — from a gentle heads-up, through increasingly firm nudges after the deadline, all the way to calling you out on how many times you've rescheduled something. You interact with it through Signal messages to manage todos and events, save ideas, and track what's in progress. It runs as a self-hosted Docker stack with Radicale as the calendar backend and a lightweight web dashboard for a quick overview.
+A personal assistant that syncs your CalDAV calendar and relentlessly escalates reminders via Signal and email, from a gentle heads-up, through increasingly firm nudges after the deadline, all the way to calling you out on how many times you've rescheduled something. You interact with it through Signal messages to manage todos and events, save ideas, and track what's in progress. It runs as a self-hosted Docker stack with Radicale as the calendar backend and a lightweight web dashboard for a quick overview.
 
 ## Architecture
 
