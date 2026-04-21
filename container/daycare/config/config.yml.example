@@ -1,0 +1,91 @@
+caldav:
+  url: "https://your-caldav-host:5232"
+  username: "your-caldav-username"
+  ssl_verify: "/certs/ca.pem"   # or: true / false
+
+add_item:
+  calendar_name: "your-calendar-name"
+  default_duration_minutes: 30
+
+signal:
+  api_url: "http://signal-cli-rest-api:8080"
+  sender: "+phonenumber" 
+  recipient: "note-to-self"
+
+email:
+  smtp_host: "mail.example.com"
+  smtp_port: 587
+  smtp_user: "daycare@example.com"
+  smtp_tls: true
+  from: "daycare@example.com"
+  to: "you@example.com"
+
+caldav_sync:
+  sync_interval_minutes: 15
+  lookahead_hours: 24        # display filter for list/list todo/list event (list all ignores this)
+  timezone: "Europe/Berlin"
+
+notifier:
+  check_interval_minutes: 1
+
+receiver:
+  list_all_max_lines: 40     # if list all exceeds this, remainder is sent via email
+
+escalation:
+  - level: 1
+    offset_minutes: -30
+    channels: ["signal"]
+    message_style: "friendly"
+    repeat: false
+
+  - level: 2
+    offset_minutes: -15
+    channels: ["signal"]
+    message_style: "friendly"
+    repeat: false
+
+  - level: 3
+    offset_minutes: 0
+    channels: ["signal"]
+    message_style: "direct"
+    repeat: false
+
+  - level: 4
+    offset_minutes: 30
+    channels: ["signal"]
+    message_style: "firm"
+    repeat: false
+
+  - level: 5
+    offset_minutes: 240
+    channels: ["signal"]
+    message_style: "persistent"
+    repeat: true
+    repeat_interval_minutes: 120
+
+ignore:
+  titles:
+    - "lunch"
+    - "break"
+    - "vacation"
+  contains:
+    - "block"
+    - "private"
+
+quiet_hours:
+  enabled: true
+  from: "19:00"
+  to: "07:00"
+
+reschedule_alerts:
+  channels: ["signal"]
+
+daily_summary:
+  enabled: true
+  time: "07:30"
+  channels: ["signal", "email"]
+
+cleanup:
+  enabled: true
+  time: "02:00"
+  # older_than_days: 90  # optional: also archive non-completed items overdue by N+ days

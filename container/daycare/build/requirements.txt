@@ -1,0 +1,6 @@
+caldav==3.1.0
+requests==2.33.1
+pyyaml==6.0.3
+pytz==2026.1.post1
+vobject==0.9.9
+python-dateutil==2.9.0

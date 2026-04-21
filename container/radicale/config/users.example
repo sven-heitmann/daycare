@@ -1,0 +1,4 @@
+# create the bcrypt hash. see below.
+# sudo apt install whois
+# mkpasswd -m bcrypt
+your-username@example.com:$2b$...

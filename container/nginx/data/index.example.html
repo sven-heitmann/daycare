@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daycare Dashboard</title>
+  <style>
+    :root {
+      --bg:        #0e1a0e;
+      --surface:   #162616;
+      --surface2:  #1e3520;
+      --border:    #2d5022;
+      --green-1:   #4a8c3f;
+      --green-2:   #7dbf6e;
+      --gold:      #e8b94a;
+      --text:      #d4ebb0;
+      --text-dim:  #7aaa60;
+      --red:       #d9534f;
+      --badge-ev:  #2d5a3d;
+      --badge-td:  #3d4a1e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0a1a0a 0%, #1a3a1a 50%, #0d2a0d 100%);
+      border-bottom: 2px solid var(--green-1);
+      padding: 1.2rem 1rem 1rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--green-2);
+      letter-spacing: 0.05em;
+    }
+
+    header .subtitle {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+      letter-spacing: 0.03em;
+    }
+
+    .tab.active {
+      color: var(--green-2);
+      border-bottom-color: var(--green-1);
+    }
+
+    .count-badge {
+      display: inline-block;
+      background: var(--green-1);
+      color: #fff;
+      font-size: 0.7rem;
+      border-radius: 10px;
+      padding: 0 6px;
+      margin-left: 5px;
+      line-height: 1.5;
+    }
+
+    .panel { display: none; padding: 0.75rem; }
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.65rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--green-1);
+      border-radius: 10px 0 0 10px;
+    }
+
+    .card.overdue::before { background: var(--red); }
+    .card.soon::before    { background: var(--gold); }
+    .card.idea-open::before   { background: #6a5acd; }
+    .card.idea-done::before   { background: var(--green-1); }
+    .card.idea-rejected::before { background: #888; }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.45rem;
+      padding-left: 0.2rem;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .badge-event    { background: var(--badge-ev); color: #7dbf6e; }
+    .badge-todo     { background: var(--badge-td); color: #c3d97a; }
+    .badge-overdue  { background: #3a1212; color: var(--red); }
+    .badge-rescheduled { background: #2a2a12; color: var(--gold); }
+    .badge-idea-open     { background: #2d2a4a; color: #b0a0ff; }
+    .badge-idea-done     { background: var(--badge-ev); color: #7dbf6e; }
+    .badge-idea-rejected { background: #2a2a2a; color: #aaa; }
+    .badge-prefix   { background: #1a2a1a; color: var(--text-dim); border: 1px solid var(--border); }
+
+    .due-time {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .due-time.overdue { color: var(--red); }
+    .due-time.soon    { color: var(--gold); }
+
+    .empty {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 3rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .empty .icon { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+
+    .error-banner {
+      background: #3a1212;
+      border: 1px solid var(--red);
+      border-radius: 8px;
+      color: var(--red);
+      padding: 0.75rem 1rem;
+      margin: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 3rem 1rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .updated {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      padding: 0.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Daycare Dashboard</h1>
+  <div class="subtitle" id="subtitle">Loading…</div>
+</header>
+
+<div id="app">
+  <div class="loading">🌱 Loading…</div>
+</div>
+
+<script>
+// ── Configuration ──────────────────────────────────────────────────────────────
+// Add prefixes to filter which entries from state.json are shown.
+// The label appears as a badge on each card.
+// Leave empty to show all items regardless of prefix.
+const DISPLAY_PREFIXES = [
+  // { prefix: "HOME:", label: "Home" },
+  // { prefix: "WORK:", label: "Work" },
+  // { prefix: "3D:",   label: "3D"   },
+];
+
+const STATE_URL = "/data/state.json";
+const IDEAS_URL = "/data/ideas.json";
+const REFRESH_MS = 60_000;
+// ──────────────────────────────────────────────────────────────────────────────
+
+function matchPrefix(title) {
+  if (DISPLAY_PREFIXES.length === 0) return { prefix: "", label: null };
+  for (const p of DISPLAY_PREFIXES) {
+    if (title.toLowerCase().startsWith(p.prefix.toLowerCase())) {
+      return p;
+    }
+  }
+  return null;
+}
+
+function stripPrefix(title) {
+  const p = matchPrefix(title);
+  return p ? title.slice(p.prefix.length).trimStart() : title;
+}
+
+function parseDate(iso) {
+  return new Date(iso);
+}
+
+function formatDue(date, type) {
+  const now = new Date();
+  const diff = date - now;
+  const absDiff = Math.abs(diff);
+  const mins  = Math.floor(absDiff / 60_000);
+  const hours = Math.floor(absDiff / 3_600_000);
+  const days  = Math.floor(absDiff / 86_400_000);
+
+  const timeStr = type === "event"
+    ? date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+    : "";
+
+  const dateStr = date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+
+  let relative = "";
+  if (diff < 0) {
+    relative = mins < 60 ? `${mins} min ago`
+             : hours < 24 ? `${hours} h ago`
+             : `${days} day${days !== 1 ? "s" : ""} ago`;
+  } else {
+    relative = mins < 60 ? `in ${mins} min`
+             : hours < 24 ? `in ${hours} h`
+             : `in ${days} day${days !== 1 ? "s" : ""}`;
+  }
+
+  return { dateStr, timeStr, relative };
+}
+
+function urgency(date) {
+  const diff = date - new Date();
+  if (diff < 0)               return "overdue";
+  if (diff < 2 * 3_600_000)   return "soon";
+  return "ok";
+}
+
+function renderCard(item) {
+  const date   = parseDate(item.due);
+  const urg    = urgency(date);
+  const fmt    = formatDue(date, item.type);
+  const title  = stripPrefix(item.title);
+  const pfx    = matchPrefix(item.title);
+
+  const badges = [
+    `<span class="badge badge-${item.type}">${item.type === "event" ? "📅 Event" : "📝 Todo"}</span>`,
+    pfx && pfx.label ? `<span class="badge badge-prefix">${escHtml(pfx.label)}</span>` : "",
+    urg === "overdue" ? `<span class="badge badge-overdue">Overdue</span>` : "",
+    item.reschedule_count > 0 ? `<span class="badge badge-rescheduled">⚠ rescheduled ${item.reschedule_count}×</span>` : "",
+  ].filter(Boolean).join("");
+
+  return `
+    <div class="card ${urg}">
+      <div class="card-title">${escHtml(title)}</div>
+      <div class="card-meta">
+        ${badges}
+        <span class="due-time ${urg}">
+          ${fmt.dateStr}${fmt.timeStr ? " · " + fmt.timeStr : ""} · ${fmt.relative}
+        </span>
+      </div>
+    </div>`;
+}
+
+function renderIdeaCard(idea) {
+  const status = idea.status || "";
+  let stateClass = "idea-open";
+  let badgeClass = "badge-idea-open";
+  let badgeLabel = "💡 Idea";
+  if (status === "done") {
+    stateClass = "idea-done";
+    badgeClass = "badge-idea-done";
+    badgeLabel = "✅ Done";
+  } else if (status === "rejected") {
+    stateClass = "idea-rejected";
+    badgeClass = "badge-idea-rejected";
+    badgeLabel = "✗ Rejected";
+  }
+
+  const title  = stripPrefix(idea.idea);
+  const pfx    = matchPrefix(idea.idea);
+  const dateStr = new Date(idea.date).toLocaleDateString("en-GB", {
+    day: "numeric", month: "short", year: "numeric"
+  });
+
+  return `
+    <div class="card ${stateClass}">
+      <div class="card-title">${escHtml(title)}</div>
+      <div class="card-meta">
+        <span class="badge ${badgeClass}">${badgeLabel}</span>
+        ${pfx && pfx.label ? `<span class="badge badge-prefix">${escHtml(pfx.label)}</span>` : ""}
+        <span class="due-time">saved ${dateStr}</span>
+      </div>
+    </div>`;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function render(state, ideas) {
+  const all = Object.values(state)
+    .filter(i => i && typeof i === "object" && i.title && matchPrefix(i.title) && !i.completed && !i.deleted);
+
+  const events = all.filter(i => i.type === "event").sort((a,b) => new Date(a.due)-new Date(b.due));
+  const todos  = all.filter(i => i.type === "todo" ).sort((a,b) => new Date(a.due)-new Date(b.due));
+
+  const openIdeas = (ideas || []).filter(i => matchPrefix(i.idea) && (!i.status || i.status === ""));
+  const doneIdeas = (ideas || []).filter(i => matchPrefix(i.idea) && (i.status === "done" || i.status === "rejected"));
+
+  const eventCards = events.length
+    ? events.map(renderCard).join("")
+    : `<div class="empty"><span class="icon">📅</span>No events</div>`;
+
+  const todoCards = todos.length
+    ? todos.map(renderCard).join("")
+    : `<div class="empty"><span class="icon">📝</span>No todos</div>`;
+
+  const filteredIdeas = openIdeas.length + doneIdeas.length;
+  const ideaCards = filteredIdeas
+    ? [...openIdeas, ...doneIdeas].map(renderIdeaCard).join("")
+    : `<div class="empty"><span class="icon">💡</span>No ideas</div>`;
+
+  const totalItems = all.length + filteredIdeas;
+  const now = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+  document.getElementById("app").innerHTML = `
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('events', this)">
+        📅 Events <span class="count-badge">${events.length}</span>
+      </button>
+      <button class="tab" onclick="switchTab('todos', this)">
+        📝 Todos <span class="count-badge">${todos.length}</span>
+      </button>
+      <button class="tab" onclick="switchTab('ideas', this)">
+        💡 Ideas <span class="count-badge">${filteredIdeas}</span>
+      </button>
+    </div>
+    <div class="panel active" id="panel-events">${eventCards}</div>
+    <div class="panel"        id="panel-todos">${todoCards}</div>
+    <div class="panel"        id="panel-ideas">${ideaCards}</div>
+    <div class="updated">Last updated: ${now}</div>`;
+
+  document.getElementById("subtitle").textContent =
+    `${totalItems} active item${totalItems === 1 ? "" : "s"}`;
+}
+
+window.switchTab = function(name, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("panel-" + name).classList.add("active");
+};
+
+async function load() {
+  try {
+    const [stateRes, ideasRes] = await Promise.all([
+      fetch(STATE_URL + "?t=" + Date.now()),
+      fetch(IDEAS_URL + "?t=" + Date.now()),
+    ]);
+
+    if (!stateRes.ok) throw new Error(`HTTP ${stateRes.status} (state)`);
+    const state = await stateRes.json();
+
+    let ideas = [];
+    if (ideasRes.ok) {
+      ideas = await ideasRes.json();
+    }
+
+    render(state, ideas);
+  } catch (e) {
+    document.getElementById("app").innerHTML =
+      `<div class="error-banner">⚠ Failed to load: ${escHtml(String(e))}</div>`;
+    document.getElementById("subtitle").textContent = "Error";
+  }
+}
+
+load();
+setInterval(load, REFRESH_MS);
+</script>
+</body>
+</html>

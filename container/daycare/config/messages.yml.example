@@ -1,0 +1,159 @@
+# ── Notification message templates ────────────────────────────────────────────
+# Multiple variants per style are supported — one is chosen at random.
+# Placeholders: {title}, {short_id}
+
+messages:
+  friendly:
+    - "📅 Hey, quick reminder: *{title}* is coming up in 30 minutes. You've got this! 💪"
+    - "⏰ Almost time: *{title}* in ~30 min. Maybe start getting ready?"
+
+  direct:
+    - "🔔 Now's the time: *{title}* is due. Let's go!"
+    - "📌 *{title}* — it's time. You know it, I know it. Do it. ✅"
+
+  firm:
+    - "⚠️ *{title}* was due 30 minutes ago. Still open. What's holding you back?"
+    - "🟠 30 minutes overdue: *{title}*. Take a breath, then get on it."
+
+  persistent:
+    - "🚨 *{title}* has been overdue for 2 hours. This won't go away. Now. Really."
+    - "🔴 Two hours. *{title}*. I'll keep asking until it's done. 😤"
+
+  # Appended to every reminder (leave empty to disable)
+  done_hint: "↩️ Already done? Reply with: done {short_id}"
+
+# ── Daily summary ──────────────────────────────────────────────────────────────
+# Placeholders: {count}, {items}
+
+daily_summary:
+  header:
+    - "📋 Good morning! You have {count} open item(s):"
+    - "☀️ Morning check-in: {count} things are waiting for you:"
+  item: "  • {title} [{short_id}]"
+  footer: "\nDone? Reply with: done <ID>"
+  empty:
+    - "🎉 Good morning! No open items — the day is yours."
+    - "✅ All done. Good morning!"
+  wip_header: "⚙️ In Progress ({count}):"
+  wip_item: "  ⚙️ {title} [{short_id}]"
+
+# ── Command keywords ───────────────────────────────────────────────────────────
+# All comparisons are case-insensitive.
+
+keywords:
+  done:   ["done", "ok", "check", "✅"]
+  list:   ["list"]
+  help:   ["help"]
+  add:    ["add", "new"]
+  idea:   ["idea"]
+  search: ["search"]
+  wip:    ["wip", "start"]
+  unwip:  ["unwip", "stop"]
+
+# ── Receiver reply texts ───────────────────────────────────────────────────────
+
+replies:
+  help: |
+    🧸 Daycare Commands:
+      # Create new items or idea 
+      add,todo,Title,YYYY-MM-DD HH:MM   — Create new todo
+      add,event,Title,YYYY-MM-DD HH:MM  — Create new event
+      add,idea,Description              — Create new idea
+      # Change status of an item
+      wip <ID>                          — Mark item as in progress
+      unwip <ID>                        — Move item back to open
+      done <ID>                         — Mark item as done
+      # Change status of an idea
+      idea <ID> done                    — Mark idea as done
+      idea <ID> rejected                — Mark idea as rejected
+      idea <ID>                         — Clear idea status
+      # Show several lists
+      list                              — All **open** items (items are todos and events)
+      list all                          — All items + ideas across all statuses
+      list todo                         — Todos only (open)
+      list event                        — Events only (open)
+      list idea                         — All ideas
+      list idea YYYY-MM                 — Ideas from month
+      list idea [status]                — status = open, done, rejected
+      list idea [status] YYYY-MM        — Combined filter
+      # Search options
+      search Term                       — Search active items and ideas
+      search all Term                   — Also search archive
+      
+      help                              — This help
+
+  list_header: "📋 Open Items ({count}):"
+  list_item: "• Due: {due} [{short_id}] {title} ({type})"
+  list_wip_header: "⚙️ In Progress ({count}):"
+  list_wip_item: "• Due: {due} [{short_id}] {title} ({type})"
+  list_done_header: "✅ Done ({count}):"
+  list_empty: "🎉 No open items — all done!"
+
+  done_success: "✅ Done: *{title}*\nWell done! 🎉"
+  done_caldav_warning: "✅ Done: *{title}*\n⚠️ CalDAV sync failed — marked locally only."
+  done_no_id: "❓ Which item? Reply with: done <ID>\nUse 'list' for an overview."
+  done_not_found: "❓ No open item with ID '{short_id}'.\nUse 'list' for an overview."
+  already_done: "ℹ️ [{short_id}] is already done."
+
+# ── Reschedule comments ────────────────────────────────────────────────────────
+# Appended to reminders when an item has been rescheduled.
+# Placeholders: {title}, {count}, {due}, {due_previous}, {days}
+
+reschedule:
+  count_thresholds:
+    - count: 3
+      comments:
+        - "📌 By the way: *{title}* has already been rescheduled {count} times."
+        - "🔁 Just a heads-up: *{title}* has been rescheduled {count} times already."
+    - count: 5
+      comments:
+        - "⚠️ *{title}* has been rescheduled {count} times. Will this one stick?"
+        - "🟠 {count} reschedules for *{title}*. Eventually it has to happen."
+    - count: 10
+      comments:
+        - "🚨 *{title}* — rescheduled {count} times. Why is it now on {due}? What's really blocking you?"
+        - "🔴 Ten times. *Ten.* — *{title}* is now on {due}. What's the real reason?"
+
+  days_thresholds:
+    - days: 3
+      comments:
+        - "📅 *{title}* pushed back by {days} days — now due {due}."
+        - "🔁 *{title}*: {days} days later, now on {due}."
+    - days: 7
+      comments:
+        - "🟠 *{title}* a whole week further out: {due}. Everything okay?"
+        - "⚠️ *{title}*: {days}-day shift. Was {due_previous}, now {due}."
+    - days: 30
+      comments:
+        - "🚨 A month? *{title}* is now on {due}. What's really blocking you?"
+        - "🔴 *{title}*: {days} days — from {due_previous} to {due}. This is no accident anymore."
+
+# ── Add-item replies ───────────────────────────────────────────────────────────
+
+idea_replies:
+  saved: "💡 Idea saved: {idea}"
+  search_header: "🔍 Results for '{query}' ({count}):"
+  search_item_idea: "• Saved: {date} [{id}] {desc} ({kind}){archiv}"
+  search_item_todo: "• Due: {date} [{id}] {desc} ({kind}){archiv}"
+  search_empty: "🤷 No results found for '{query}'."
+  list_header: "💡 All ideas ({count}):"
+  list_item: "• {icon} Saved: {date} [{id}] {idea}{status}"
+  list_empty: "No ideas saved yet."
+  no_idea: "❓ What's the idea? Format: add,idea,Your idea"
+  idea_not_found: "❓ No idea with ID '{id}' found."
+  idea_status_set: "✅ Status for [{id}] set to '{status}'."
+  idea_status_invalid: "❓ Invalid status '{status}'. Allowed: done, rejected, or empty."
+
+wip_replies:
+  success: "⚙️ *{title}* is now in progress. I'll leave you alone! 💪"
+  unwip_success: "↩️ *{title}* is open again."
+  not_found: "❓ No item with ID '{short_id}' found."
+  already_done: "ℹ️ *{title}* is already done — no changes possible."
+
+add_replies:
+  success_todo: "✅ Todo created: *{title}*\nDue: {due}"
+  success_event: "📅 Event created: *{title}*\nAt: {due}"
+  parse_error: "❓ Format: add,todo,Title,YYYY-MM-DD HH:MM\nor: add,event,Title,YYYY-MM-DD HH:MM"
+  caldav_error: "⚠️ Could not be created. caldav error. Please try again. When the caldav service is available."
+  past_error: "❌ {due} is in the past. Please provide a future date."
+  title_too_long: "❌ Title too long. Maximum: 60 characters."
